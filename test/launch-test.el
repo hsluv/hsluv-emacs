@@ -1,1 +1,4 @@
-(hsluv--test "/Users/gvermeiren/src/geertv/emacs-hsluv/test/snapshot-rev4.json")
+(require 'hsluv)
+(require 'hsluv-test)
+(when (> (hsluv--test "test/snapshot-rev4.json") 0)
+  (error (kill-emacs 1)))

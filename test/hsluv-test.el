@@ -80,7 +80,8 @@
         (setq errors (+ errors (hsluv--test-assert hex "lch-hpluv" lch hpluv (hsluv-lch-to-hpluv lch))))
 
         (when (> errors 0)
-          (error (concat hex ": " (number-to-string errors) " conversion" (if (> errors 1) "s" "") " failed.")))))))
+          (error (concat hex ": " (number-to-string errors) " conversion" (if (> errors 1) "s" "") " failed.")))
+        errors))))
 
 ;;(hsluv--test "test/snapshot-rev4.json")
 (provide 'hsluv-test)
