@@ -23,7 +23,7 @@
          (mapcar* (lambda (v1 v2) (abs (- v1 v2))) a1 a2)))
 
 (defun hsluv--test-assert (hex conversion input expected actual)
-  (if (not (float-arrays-equalp expected actual 1.0e-14))
+  (if (not (float-arrays-equalp expected actual EPSILON))
       (progn
         (princ (concat hex " " conversion ":"))
         (terpri)
