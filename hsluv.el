@@ -53,6 +53,7 @@
 ;;; Changelog
 
 ;; 2017/04/15 v1.0  First version
+;; 2018/08/07       Split off testing
 
 ;;; Code:
 
@@ -77,9 +78,10 @@
 (defconst hsluv--epsilon 0.0088564516)
 
 (defun hsluv--get-bounds (l)
-  "For a given lightness, return a list of 6 lines in slope-intercept
-form that represent the bounds in CIELUV, stepping over which will
-push a value out of the RGB gamut"
+  "Return CIELUV bounds for a given lightness L.
+For a given lightnessFor a given lightness L, return a list of 6 lines
+in slope-intercept form that represent the bounds in CIELUV, stepping
+over which will push a value out of the RGB gamut."
   (let* ((L (float l))
          (sub1 (/ (expt (+ L 16) 3) 1560896))
          (sub2 (if (> sub1 hsluv--epsilon)
@@ -112,8 +114,8 @@ push a value out of the RGB gamut"
         (elt line-a 0))))
 
 (defun hsluv-distance-from-pole (point)
-  (sqrt (+ (expt (elt point 0) 2)
-           (expt (elt point 1) 2))))
+  (sqrt (apply '+ (mapcar (lambda (x) (expt x 2)) point))))
+
 
 (defun hsluv-length-of-ray-until-intersect (theta line)
   (/ (elt line 1)
