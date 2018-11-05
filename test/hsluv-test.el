@@ -84,5 +84,54 @@
         errors))))
 
 ;;(hsluv--test "test/snapshot-rev4.json")
+
+(defconst TESTDATA "/Users/gvermeiren/src/geertv/emacs-hsluv/test/snapshot-rev4.json")
+
+(defun luvtest-dump (color)
+  "Output COLOR to the console for debugging purposes."
+  (pp color)
+  ;;(pp (car color))
+  ;;(pp (cdr (assoc "rgb" (cdr color))))
+  )
+
+;; (defmacro hsluv-deftest (color)
+;;   "Generate a test for hsluv COLOR conversion."
+;;   (macrolet ((testname (make-symbol (concat "test" (car color)))))
+;;     `(ert-deftest ,testname ()
+;;        (should (float-arrays-equalp (color-name-to-rgb (car color)) (cdr (assoc "rgb" (cdr color))) EPSILON)))))
+
+(defmacro hsluv-deftest (color)
+  "Generate a test named TESTNAME for hsluv COLOR conversion."
+  ;; (let* ((suffix (substring (car color) 1))))
+  `(ert-deftest ,(intern (concat "test-" (substring (car color) 1))) ()
+     (should (float-arrays-equalp
+              (color-name-to-rgb (car ,color))
+              (cdr (assoc "rgb" (cdr ,color)))
+              EPSILON))
+     )
+  )
+
+;; (defun luvtest-single (color)
+;;   "Test all conversions for one COLOR."
+;;   ;;(luvtest-dump color)
+;;   (hsluv-deftest color)
+;;   )
+
+(defun luvtest-single (color)
+  (eval `(ert-deftest ,(intern (concat "test-" (substring (car color) 1))) ()
+           (should (float-arrays-equalp
+                    ,(color-name-to-rgb (car color))
+                    ,(cdr (assoc "rgb" (cdr color)))
+                    EPSILON))
+           )))
+
+;; let's try something completely different ;-)
+(defun luvtest (file)
+  "Load expected conversions from FILE and test them 1 by 1."
+  ;;(mapc 'luvtest-single (hsluv--read-test-file file))
+  (luvtest-single (car (hsluv--read-test-file file)))
+  )
+
+
 (provide 'hsluv-test)
 ;;; hsluv-test.el ends here
