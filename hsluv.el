@@ -318,6 +318,16 @@ simplified accordingly."
           (t
            (list H (* 100.0 (/ C (hsluv--max-safe-chroma-for-l L))) L)))))
 
+(defun hsluv-rgb-to-hex (tuple)
+  "Convert an rgb TUPLE to a hex color string."
+  (concat "#" (mapconcat (lambda (num) (format "%02x" (* 255 num))) tuple "")))
+
+(defun hsluv-hex-to-rgb (color)
+  "Convert hex COLOR to float tuple."
+  (list (/ (string-to-number (substring color 1 3) 16) 255.0)
+        (/ (string-to-number (substring color 3 5) 16) 255.0)
+        (/ (string-to-number (substring color 5) 16) 255.0)))
+
 (defun hsluv-lch-to-rgb (tuple)
   (hsluv-xyz-to-rgb (hsluv-luv-to-xyz (hsluv-lch-to-luv tuple))))
 
@@ -343,10 +353,10 @@ simplified accordingly."
   (apply 'color-rgb-to-hex (hsluv-hpluv-to-rgb tuple)))
 
 (defun hsluv-hex-to-hsluv (tuple)
-  (hsluv-rgb-to-hsluv (color-name-to-rgb tuple)))
+  (hsluv-rgb-to-hsluv (hsluv-hex-to-rgb tuple)))
 
 (defun hsluv-hex-to-hpluv (tuple)
-  (hsluv-rgb-to-hpluv (color-name-to-rgb tuple)))
+  (hsluv-rgb-to-hpluv (hsluv-hex-to-rgb tuple)))
 
 
 (provide 'hsluv)
