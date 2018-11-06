@@ -79,7 +79,7 @@
 
 (defun hsluv--get-bounds (l)
   "Return CIELUV bounds for a given lightness L.
-For a given lightnessFor a given lightness L, return a list of 6 lines
+For a given lightness L, return a list of 6 lines
 in slope-intercept form that represent the bounds in CIELUV, stepping
 over which will push a value out of the RGB gamut."
   (let* ((L (float l))
@@ -148,7 +148,7 @@ gamut."
 
 (defun hsluv--dot-product (a b)
   "Calculate the dot product of the sequences A and B."
-  (seq-reduce #'+ (seq-mapn #'* a b) 0))
+  (apply #'+ (seq-mapn #'* a b)))
 
 (defun hsluv-round (value places)
   (let ((n (float (expt 10 places))))
@@ -175,7 +175,7 @@ gamut."
          (setq results (cons (round (* rounded 255)) results)))))))
 
 (defun hsluv-xyz-to-rgb (tuple)
-  "Converts colors from XYZ color-space to RGB color-space.
+  "Convert TUPLE colors from XYZ color-space to RGB color-space.
 XYZ coordinates are ranging in [0;1] and RGB coordinates in [0;1] range.
 TUPLE is a list containing the color's X,Y and Z values.
 Returns a list containing the resulting color's red, green and blue."
@@ -184,7 +184,7 @@ Returns a list containing the resulting color's red, green and blue."
         (hsluv--from-linear (hsluv--dot-product (elt hsluv--m 2) tuple))))
 
 (defun hsluv-rgb-to-xyz (tuple)
-  "Converts colors from RGB color-space to XYZ color-space.
+  "Convert TUPLE color from RGB color-space to XYZ color-space.
 RGB coordinates are ranging in [0;1] and XYZ coordinates in [0;1] range.
 TUPLE is a list containing the color's R,G and B values.
 Returns a list containing the resulting color's XYZ coordinates."
