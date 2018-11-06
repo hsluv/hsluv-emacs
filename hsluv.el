@@ -147,9 +147,8 @@ gamut."
           (setq minimum (min minimum length)))))))
 
 (defun hsluv--dot-product (a b)
-  (let ((sum 0))
-    (dotimes (i (safe-length a) sum)
-      (setq sum (+ sum (* (elt a i) (elt b i)))))))
+  "Calculate the dot product of the sequences A and B."
+  (seq-reduce #'+ (seq-mapn #'* a b) 0))
 
 (defun hsluv-round (value places)
   (let ((n (float (expt 10 places))))
