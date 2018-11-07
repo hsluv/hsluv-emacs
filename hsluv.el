@@ -218,14 +218,14 @@ simplified accordingly."
   (let* ((X (float (elt tuple 0)))
          (Y (float (elt tuple 1)))
          (Z (float (elt tuple 2)))
-         (varU (/ (* 4 X)
-                  (+ X
-                     (* 15 Y)
-                     (* 3 Z))))
-         (varV (/ (* 9 Y)
-                  (+ X
-                     (* 15 Y)
-                     (* 3 Z))))
+         (varU (if (= X 0) 0  (/ (* 4 X)
+                                 (+ X
+                                    (* 15 Y)
+                                    (* 3 Z)))))
+         (varV (if (= Y 0) 0 (/ (* 9 Y)
+                                (+ X
+                                   (* 15 Y)
+                                   (* 3 Z)))))
          (L (hsluv--y-to-l Y))
          (U (* 13
                L
