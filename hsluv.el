@@ -160,10 +160,11 @@ gamut."
       (* 12.92 c)
     (- (* 1.055 (expt c (/ 1 2.4))) 0.055)))
 
-(defun hsluv--to-linear (c)
-  (if (> c 0.04045)
-      (expt (/ (+ c 0.055) (+ 1 0.055)) 2.4)
-    (/ c 12.92)))
+(defun hsluv--to-linear (n)
+  (let ((c (float n)))
+    (if (> c 0.04045)
+        (expt (/ (+ c 0.055) (+ 1 0.055)) 2.4)
+      (/ c 12.92))))
 
 (defun hsluv-rgb-prepare (tuple)
   (let ((results '()))
@@ -188,12 +189,8 @@ Returns a list containing the resulting color's red, green and blue."
 RGB coordinates are ranging in [0;1] and XYZ coordinates in [0;1] range.
 TUPLE is a list containing the color's R,G and B values.
 Returns a list containing the resulting color's XYZ coordinates."
-  (let ((rgbl (list (hsluv--to-linear (float (elt tuple 0)))
-                    (hsluv--to-linear (float (elt tuple 1)))
-                    (hsluv--to-linear (float (elt tuple 2))))))
-    (list (hsluv--dot-product (elt hsluv--minv 0) rgbl)
-          (hsluv--dot-product (elt hsluv--minv 1) rgbl)
-          (hsluv--dot-product (elt hsluv--minv 2) rgbl))))
+  (let ((rgbl (mapcar 'hsluv--to-linear tuple)))
+    (mapcar (lambda (tuple) (hsluv--dot-product tuple rgbl)) hsluv--minv)))
 
 (defun hsluv--y-to-l (Y)
   "http://en.wikipedia.org/wiki/CIELUV
