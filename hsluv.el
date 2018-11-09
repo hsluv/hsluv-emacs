@@ -124,9 +124,9 @@ over which will push a value out of the RGB gamut."
            (cos theta)))))
 
 (defun hsluv--max-safe-chroma-for-l (L)
-  "For given lightness, returns the maximum chroma. Keeping the chroma value
-below this number will ensure that for any hue, the color is within the RGB
-gamut."
+  "For given lightness L, return the maximum chroma.
+Keeping the chroma value below this number will ensure
+that for any hue, the color is within the RGB gamut."
   (let ((bounds (hsluv--get-bounds L))
         (minimum 1.0e+INF))
     (dotimes (i 2 minimum)
