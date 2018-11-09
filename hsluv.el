@@ -180,9 +180,7 @@ gamut."
 XYZ coordinates are ranging in [0;1] and RGB coordinates in [0;1] range.
 TUPLE is a list containing the color's X,Y and Z values.
 Returns a list containing the resulting color's red, green and blue."
-  (list (hsluv--from-linear (hsluv--dot-product (elt hsluv--m 0) tuple))
-        (hsluv--from-linear (hsluv--dot-product (elt hsluv--m 1) tuple))
-        (hsluv--from-linear (hsluv--dot-product (elt hsluv--m 2) tuple))))
+  (mapcar 'hsluv--from-linear (mapcar (lambda (t2) (hsluv--dot-product t2 tuple)) hsluv--m)))
 
 (defun hsluv-rgb-to-xyz (tuple)
   "Convert TUPLE color from RGB color-space to XYZ color-space.
