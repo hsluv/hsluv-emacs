@@ -33,7 +33,7 @@ Real Soon Now :tm:
 The following functions provide the conversions
 from RGB to/from HSLUV and HPLUV:
 
-```
+```elisp
 (hsluv-hsluv-to-rgb (list H S Luv))
 
 (hsluv-hpluv-to-rgb (list H P Luv))
@@ -47,7 +47,7 @@ from RGB to/from HSLUV and HPLUV:
 
 If you want to run the tests, checkout this repository. Then, on a command-line near you, do:
 
-```
+```sh
 $ make clean test
 ```
 
