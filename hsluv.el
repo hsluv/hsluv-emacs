@@ -151,6 +151,7 @@ that for any hue, the color is within the RGB gamut."
   (apply #'+ (seq-mapn #'* a b)))
 
 (defun hsluv-round (value places)
+  "Round VALUE to a specific number of decimal PLACES."
   (let ((n (float (expt 10 places))))
     (/ (fround (* value n)) n)))
 
@@ -167,6 +168,7 @@ that for any hue, the color is within the RGB gamut."
       (/ c 12.92))))
 
 (defun hsluv-rgb-prepare (tuple)
+  "Prepare RGB TUPLE."
   (let ((results '()))
     (reverse
      (dolist (chan tuple results)
@@ -176,14 +178,14 @@ that for any hue, the color is within the RGB gamut."
          (setq results (cons (round (* rounded 255)) results)))))))
 
 (defun hsluv-xyz-to-rgb (tuple)
-  "Convert TUPLE colors from XYZ color-space to RGB color-space.
+  "Convert TUPLE from XYZ to RGB color space.
 XYZ coordinates are ranging in [0;1] and RGB coordinates in [0;1] range.
 TUPLE is a list containing the color's X,Y and Z values.
 Returns a list containing the resulting color's red, green and blue."
   (mapcar 'hsluv--from-linear (mapcar (lambda (t2) (hsluv--dot-product t2 tuple)) hsluv--m)))
 
 (defun hsluv-rgb-to-xyz (tuple)
-  "Convert TUPLE color from RGB color-space to XYZ color-space.
+  "Convert TUPLE from RGB to XYZ color space.
 RGB coordinates are ranging in [0;1] and XYZ coordinates in [0;1] range.
 TUPLE is a list containing the color's R,G and B values.
 Returns a list containing the resulting color's XYZ coordinates."
@@ -191,7 +193,8 @@ Returns a list containing the resulting color's XYZ coordinates."
     (mapcar (lambda (tuple) (hsluv--dot-product tuple rgbl)) hsluv--minv)))
 
 (defun hsluv--y-to-l (Y)
-  "http://en.wikipedia.org/wiki/CIELUV
+  "Convert Y to L.
+http://en.wikipedia.org/wiki/CIELUV
 In these formulas, Yn refers to the reference white point. We are using
 illuminant D65, so Yn (see refY in Maxima file) equals 1. The formula is
 simplified accordingly."
@@ -203,6 +206,7 @@ simplified accordingly."
        16)))
 
 (defun hsluv-l-to-y (L)
+  "Convert L to Y."
   (if (<= L 8)
       (/ (* L hsluv--refY)
          hsluv--kappa)
@@ -210,6 +214,7 @@ simplified accordingly."
        (expt (/ (+ L 16) 116) 3))))
 
 (defun hsluv-xyz-to-luv (tuple)
+  "Convert a TUPLE from XYZ to LUV color space."
   (let* ((X (float (elt tuple 0)))
          (Y (float (elt tuple 1)))
          (Z (float (elt tuple 2)))
@@ -232,6 +237,7 @@ simplified accordingly."
 
 
 (defun hsluv-luv-to-xyz (tuple)
+  "Convert a TUPLE from LUV to XYZ color space."
   (let ((L (float (elt tuple 0)))
         (U (float (elt tuple 1)))
         (V (float (elt tuple 2))))
@@ -249,6 +255,7 @@ simplified accordingly."
         (list X Y Z)))))
 
 (defun hsluv-luv-to-lch (tuple)
+  "Convert a TUPLE from LUV to LCH color space."
   (let* ((L (float (elt tuple 0)))
          (U (float (elt tuple 1)))
          (V (float (elt tuple 2)))
@@ -260,6 +267,7 @@ simplified accordingly."
     (list L C H)))
 
 (defun hsluv-lch-to-luv (tuple)
+  "Convert a TUPLE from LCH to LUV color space."
   (let* ((L (float (elt tuple 0)))
          (C (float (elt tuple 1)))
          (H (float (elt tuple 2)))
@@ -269,6 +277,7 @@ simplified accordingly."
     (list L U V)))
 
 (defun hsluv-hsluv-to-lch (tuple)
+  "Convert a TUPLE from HSLuv to LCH color space."
   (let ((H (float (elt tuple 0)))
         (S (float (elt tuple 1)))
         (L (float (elt tuple 2))))
@@ -280,6 +289,7 @@ simplified accordingly."
            (list L (* (/ (hsluv-max-chroma-for-l-h L H) 100.0) S) H)))))
 
 (defun hsluv-lch-to-hsluv (tuple)
+  "Convert a TUPLE from LCH to HSLuv color space."
   (let ((L (float (elt tuple 0)))
         (C (float (elt tuple 1)))
         (H (float (elt tuple 2))))
@@ -291,6 +301,7 @@ simplified accordingly."
            (list H (* 100.0 (/ C (hsluv-max-chroma-for-l-h L H))) L)))))
 
 (defun hsluv-hpluv-to-lch (tuple)
+  "Convert a TUPLE from HPLuv to LCH color space."
   (let ((H (float (elt tuple 0)))
         (S (float (elt tuple 1)))
         (L (float (elt tuple 2))))
@@ -302,6 +313,7 @@ simplified accordingly."
            (list L (* (/ (hsluv--max-safe-chroma-for-l L) 100.0) S) H)))))
 
 (defun hsluv-lch-to-hpluv (tuple)
+  "Convert a TUPLE from LCH to HPLuv color space."
   (let ((L (float (elt tuple 0)))
         (C (float (elt tuple 1)))
         (H (float (elt tuple 2))))
@@ -313,43 +325,53 @@ simplified accordingly."
            (list H (* 100.0 (/ C (hsluv--max-safe-chroma-for-l L))) L)))))
 
 (defun hsluv-rgb-to-hex (tuple)
-  "Convert an rgb TUPLE to a hex color string."
+  "Convert an RGB TUPLE to a hexadecimal color ('#rrggbb') string."
   (concat "#" (mapconcat (lambda (num) (format "%02x" (* 255 num))) tuple "")))
 
 (defun hsluv-hex-to-rgb (color)
-  "Convert hex COLOR to float tuple."
+  "Convert a COLOR in hexadecimal notation ('#rrggbb') to float RGB tuple."
   (list (/ (string-to-number (substring color 1 3) 16) 255.0)
         (/ (string-to-number (substring color 3 5) 16) 255.0)
         (/ (string-to-number (substring color 5) 16) 255.0)))
 
 (defun hsluv-lch-to-rgb (tuple)
+  "Convert a TUPLE from LCH to RGB color space."
   (hsluv-xyz-to-rgb (hsluv-luv-to-xyz (hsluv-lch-to-luv tuple))))
 
 (defun hsluv-rgb-to-lch (tuple)
+  "Convert a TUPLE from RGB to LCH color space."
   (hsluv-luv-to-lch (hsluv-xyz-to-luv (hsluv-rgb-to-xyz tuple))))
 
 (defun hsluv-hsluv-to-rgb (tuple)
+  "Convert a TUPLE from HSLuv to RGB color space."
   (hsluv-lch-to-rgb (hsluv-hsluv-to-lch tuple)))
 
 (defun hsluv-hpluv-to-rgb (tuple)
+  "Convert a TUPLE from HPLuv to RGB color space."
   (hsluv-lch-to-rgb (hsluv-hpluv-to-lch tuple)))
 
 (defun hsluv-rgb-to-hsluv (tuple)
+  "Convert a TUPLE from RGB to HSLuv color space."
   (hsluv-lch-to-hsluv (hsluv-rgb-to-lch tuple)))
 
 (defun hsluv-rgb-to-hpluv (tuple)
+  "Convert a TUPLE from RGB to HPLuv color space."
   (hsluv-lch-to-hpluv (hsluv-rgb-to-lch tuple)))
 
 (defun hsluv-hsluv-to-hex (tuple)
+  "Convert a TUPLE from HSLuv to RGB hexadecimal notation ('#rrggbb') color space."
   (apply 'color-rgb-to-hex (hsluv-hsluv-to-rgb tuple)))
 
 (defun hsluv-hpluv-to-hex (tuple)
+  "Convert a TUPLE from HPLuv to RGB hexadecimal notation ('#rrggbb') color space."
   (apply 'color-rgb-to-hex (hsluv-hpluv-to-rgb tuple)))
 
 (defun hsluv-hex-to-hsluv (tuple)
+  "Convert a TUPLE from RGB hexadecimal notation ('#rrggbb') to HSLuv color space."
   (hsluv-rgb-to-hsluv (hsluv-hex-to-rgb tuple)))
 
 (defun hsluv-hex-to-hpluv (tuple)
+  "Convert a TUPLE from RGB hexadecimal notation ('#rrggbb') to HPLuv color space."
   (hsluv-rgb-to-hpluv (hsluv-hex-to-rgb tuple)))
 
 
