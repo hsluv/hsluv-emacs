@@ -63,6 +63,7 @@
 
 ;;; Code:
 
+(require 'seq)
 
 (defconst hsluv--m
   '((3.240969941904521 -1.537383177570093 -0.498610760293)
@@ -120,7 +121,7 @@ over which will push a value out of the RGB gamut."
         (elt line-a 0))))
 
 (defun hsluv--distance-from-pole (point)
-  (sqrt (apply '+ (mapcar (lambda (x) (expt x 2)) point))))
+  (sqrt (apply #'+ (mapcar (lambda (x) (expt x 2)) point))))
 
 
 (defun hsluv--length-of-ray-until-intersect (theta line)
@@ -173,14 +174,14 @@ that for any hue, the color is within the RGB gamut."
 XYZ coordinates are ranging in [0;1] and RGB coordinates in [0;1] range.
 TUPLE is a list containing the color's X,Y and Z values.
 Returns a list containing the resulting color's red, green and blue."
-  (mapcar 'hsluv--from-linear (mapcar (lambda (t2) (hsluv--dot-product t2 tuple)) hsluv--m)))
+  (mapcar #'hsluv--from-linear (mapcar (lambda (t2) (hsluv--dot-product t2 tuple)) hsluv--m)))
 
 (defun hsluv-rgb-to-xyz (tuple)
   "Convert TUPLE from RGB to XYZ color space.
 RGB coordinates are ranging in [0;1] and XYZ coordinates in [0;1] range.
 TUPLE is a list containing the color's R,G and B values.
 Returns a list containing the resulting color's XYZ coordinates."
-  (let ((rgbl (mapcar 'hsluv--to-linear tuple)))
+  (let ((rgbl (mapcar #'hsluv--to-linear tuple)))
     (mapcar (lambda (tuple) (hsluv--dot-product tuple rgbl)) hsluv--minv)))
 
 (defun hsluv--y-to-l (Y)
@@ -351,11 +352,11 @@ simplified accordingly."
 
 (defun hsluv-hsluv-to-hex (tuple)
   "Convert a TUPLE from HSLuv to RGB hexadecimal notation ('#rrggbb') color space."
-  (apply 'color-rgb-to-hex (hsluv-hsluv-to-rgb tuple)))
+  (apply #'hsluv-rgb-to-hex (hsluv-hsluv-to-rgb tuple)))
 
 (defun hsluv-hpluv-to-hex (tuple)
   "Convert a TUPLE from HPLuv to RGB hexadecimal notation ('#rrggbb') color space."
-  (apply 'color-rgb-to-hex (hsluv-hpluv-to-rgb tuple)))
+  (apply #'hsluv-rgb-to-hex (hsluv-hpluv-to-rgb tuple)))
 
 (defun hsluv-hex-to-hsluv (tuple)
   "Convert a TUPLE from RGB hexadecimal notation ('#rrggbb') to HSLuv color space."
@@ -364,7 +365,6 @@ simplified accordingly."
 (defun hsluv-hex-to-hpluv (tuple)
   "Convert a TUPLE from RGB hexadecimal notation ('#rrggbb') to HPLuv color space."
   (hsluv-rgb-to-hpluv (hsluv-hex-to-rgb tuple)))
-
 
 (provide 'hsluv)
 ;;; hsluv.el ends here
