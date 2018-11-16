@@ -1,6 +1,6 @@
 (require 'hsluv)
 (require 'hsluv-test)
-(luvtest "test/snapshot-rev4.json")
+(hsluvtest "test/snapshot-rev4.json")
 (ert-run-tests-batch-and-exit)
 
 

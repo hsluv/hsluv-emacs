@@ -1,24 +1,29 @@
 ;;; hsluv.el --- hsluv color space conversions -*- coding: utf-8; lexical-binding: t -*-
 
-;; Copyright (C) 2017 Geert Vermeiren
+;; Copyright (c) 2017 Geert Vermeiren
 ;;
 ;; Version: 1.0.0
 ;; Author: Geert Vermeiren
-;; Keywords: color
-;; URL: https://github.com/woozong/hsluv-elisp
+;; Keywords: color hsluv
+;; URL: https://github.com/hsluv/hsluv-emacs
 
-;; This program is free software: you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation, either version 3 of the License, or
-;; (at your option) any later version.
+;; Permission is hereby granted, free of charge, to any person obtaining a copy of
+;; this software and associated documentation files (the "Software"), to deal in
+;; the Software without restriction, including without limitation the rights to
+;; use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+;; of the Software, and to permit persons to whom the Software is furnished to do
+;; so, subject to the following conditions:
 
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
+;; The above copyright notice and this permission notice shall be included in all
+;; copies or substantial portions of the Software.
 
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+;; THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+;; DEALINGS IN THE SOFTWARE.
 
 ;; This file is not part of GNU Emacs.
 
@@ -54,6 +59,7 @@
 
 ;; 2017/04/15 v1.0  First version
 ;; 2018/08/07       Split off testing
+;; 2018/10/13       Cleanup for package release in the wild
 
 ;;; Code:
 
@@ -113,11 +119,11 @@ over which will push a value out of the RGB gamut."
      (- (elt line-b 0)
         (elt line-a 0))))
 
-(defun hsluv-distance-from-pole (point)
+(defun hsluv--distance-from-pole (point)
   (sqrt (apply '+ (mapcar (lambda (x) (expt x 2)) point))))
 
 
-(defun hsluv-length-of-ray-until-intersect (theta line)
+(defun hsluv--length-of-ray-until-intersect (theta line)
   (/ (elt line 1)
      (- (sin theta)
         (* (elt line 0)
@@ -134,26 +140,21 @@ that for any hue, the color is within the RGB gamut."
              (b1 (elt (elt bounds i) 1))
              (line (list m1 b1))
              (x (hsluv--intersect-line-line line (list (/ -1.0 m1) 0)))
-             (length (hsluv-distance-from-pole (list x (+ b1 (* x m1))))))
+             (length (hsluv--distance-from-pole (list x (+ b1 (* x m1))))))
         (setq minimum (min minimum length))))))
 
-(defun hsluv-max-chroma-for-l-h (L H)
+(defun hsluv--max-chroma-for-l-h (L H)
   (let ((hrad (* (/ H 360.0) float-pi 2))
         (bounds (hsluv--get-bounds L))
         (minimum 1.0e+INF))
     (dolist (bound bounds minimum)
-      (let ((length (hsluv-length-of-ray-until-intersect hrad bound)))
+      (let ((length (hsluv--length-of-ray-until-intersect hrad bound)))
         (when (> length 0)
           (setq minimum (min minimum length)))))))
 
 (defun hsluv--dot-product (a b)
   "Calculate the dot product of the sequences A and B."
   (apply #'+ (seq-mapn #'* a b)))
-
-(defun hsluv-round (value places)
-  "Round VALUE to a specific number of decimal PLACES."
-  (let ((n (float (expt 10 places))))
-    (/ (fround (* value n)) n)))
 
 ;; used for rgb conversions
 (defun hsluv--from-linear (c)
@@ -166,16 +167,6 @@ that for any hue, the color is within the RGB gamut."
     (if (> c 0.04045)
         (expt (/ (+ c 0.055) (+ 1 0.055)) 2.4)
       (/ c 12.92))))
-
-(defun hsluv-rgb-prepare (tuple)
-  "Prepare RGB TUPLE."
-  (let ((results '()))
-    (reverse
-     (dolist (chan tuple results)
-       (let ((rounded (hsluv-round chan 3)))
-         (when (or (< rounded -0.0001) (> rounded 1.0001))
-           (error "Illegal rgb value: %s" tuple))
-         (setq results (cons (round (* rounded 255)) results)))))))
 
 (defun hsluv-xyz-to-rgb (tuple)
   "Convert TUPLE from XYZ to RGB color space.
@@ -205,7 +196,7 @@ simplified accordingly."
                 (/ 1.0 3.0)))
        16)))
 
-(defun hsluv-l-to-y (L)
+(defun hsluv--l-to-y (L)
   "Convert L to Y."
   (if (<= L 8)
       (/ (* L hsluv--refY)
@@ -245,7 +236,7 @@ simplified accordingly."
         (list 0 0 0)
       (let* ((varU (+ (/ U (* 13 L)) hsluv--refU))
              (varV (+ (/ V (* 13 L)) hsluv--refV))
-             (Y (hsluv-l-to-y L))
+             (Y (hsluv--l-to-y L))
              (X (- 0 (/ (* 9 Y varU)
                         (* -4 varV))))
              (Z (- (/ (* 9 Y)
@@ -286,7 +277,7 @@ simplified accordingly."
           ((< L 0.00000001)
            (list 0.0 0.0 H))
           (t
-           (list L (* (/ (hsluv-max-chroma-for-l-h L H) 100.0) S) H)))))
+           (list L (* (/ (hsluv--max-chroma-for-l-h L H) 100.0) S) H)))))
 
 (defun hsluv-lch-to-hsluv (tuple)
   "Convert a TUPLE from LCH to HSLuv color space."
@@ -298,7 +289,7 @@ simplified accordingly."
           ((< L 0.00000001)
            (list H 0.0 0.0))
           (t
-           (list H (* 100.0 (/ C (hsluv-max-chroma-for-l-h L H))) L)))))
+           (list H (* 100.0 (/ C (hsluv--max-chroma-for-l-h L H))) L)))))
 
 (defun hsluv-hpluv-to-lch (tuple)
   "Convert a TUPLE from HPLuv to LCH color space."
