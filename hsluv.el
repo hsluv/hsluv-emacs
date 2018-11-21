@@ -352,11 +352,11 @@ simplified accordingly."
 
 (defun hsluv-hsluv-to-hex (tuple)
   "Convert a TUPLE from HSLuv to RGB hexadecimal notation ('#rrggbb') color space."
-  (apply #'hsluv-rgb-to-hex (hsluv-hsluv-to-rgb tuple)))
+  (hsluv-rgb-to-hex (hsluv-hsluv-to-rgb tuple)))
 
 (defun hsluv-hpluv-to-hex (tuple)
   "Convert a TUPLE from HPLuv to RGB hexadecimal notation ('#rrggbb') color space."
-  (apply #'hsluv-rgb-to-hex (hsluv-hpluv-to-rgb tuple)))
+  (hsluv-rgb-to-hex (hsluv-hpluv-to-rgb tuple)))
 
 (defun hsluv-hex-to-hsluv (tuple)
   "Convert a TUPLE from RGB hexadecimal notation ('#rrggbb') to HSLuv color space."
