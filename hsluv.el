@@ -6,6 +6,7 @@
 ;; Author: Geert Vermeiren
 ;; Keywords: color hsluv
 ;; URL: https://github.com/hsluv/hsluv-emacs
+;; Package-Requires: ((seq "2.20"))
 
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy of
 ;; this software and associated documentation files (the "Software"), to deal in
