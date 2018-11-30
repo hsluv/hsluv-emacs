@@ -22,11 +22,18 @@ The math is available under the public domain.
 
 ## Installation
 
-Real Soon Now :tm:
+The recommended way is to use [MELPA](http://melpa.org/). If either is in your `package-archives`, do
 
-> Once this package gets accepted on MELPA, I will publish the installation instructions here.
-> It should not be more difficult than either installing the package manually and then doing (require 'hsluv)
-> or doing something like (use-package hsluv).
+    M-x package-install RET hsluv RET
+
+or you could use something like [use-package](https://github.com/jwiegley/use-package):
+
+```elisp
+(use-package hsluv)
+```
+
+No further configuration is needed.
+
 
 ## Using
 
